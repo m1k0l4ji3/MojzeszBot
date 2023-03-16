@@ -1,12 +1,10 @@
-import json
 import os
 
-from discord.ext import commands
 import discord
-import steam.webauth as wa
+from discord.ext import commands
 from dotenv import load_dotenv
 
-from steam_func import get_items, get_cookie
+from steam_func import MyClient
 
 
 def prepare_query(message_query):
@@ -31,10 +29,11 @@ def prepare_query(message_query):
 
 def create_gets_response(data):
     if data['results']:
-        max_name_length = max([len(item['hash_name']) for item in data['results']])
-        max_price_length = max([len(item['sell_price_text']) for item in data['results']])
+        lengths = [(len(item['hash_name']), len(item['sell_price_text'])) for item in data['results']]
+        max_name_length = max(lengths, key=lambda elem: elem[0])[0]
+        max_price_length = max(lengths, key=lambda elem: elem[1])[1]
+        
         response = f"```"
-
         for item in data['results']:
             response += f"{item['hash_name'].ljust(max_name_length + 1)}{item['sell_price_text'].ljust(max_price_length)} | {item['sell_listings']}\n"
         response += "```"
@@ -72,14 +71,8 @@ def create_get_embeds(data):
 def run_discord_bot():
     load_dotenv()
     token = os.getenv('TOKEN')
-    username = os.getenv('STEAM_USERNAME')
-    password = os.getenv('STEAM_PASSWORD')
-    secret = json.loads(os.getenv('STEAM_SECRET'))
 
-    user = wa.WebAuth(username)
-    login_secure = ""
-    login_secure = get_cookie(user, username, password, secret)
-
+    steam_user = MyClient()
     intents = discord.Intents.default()
     intents.message_content = True
 
@@ -89,6 +82,18 @@ def run_discord_bot():
     async def on_ready():
         print(f"Logged in as {bot.user}\n")
 
+    @bot.command()
+    async def gets(ctx, *, query):
+        await ctx.typing()
+
+        query, count, sort_col, sort_dir = prepare_query(query)
+        data = steam_user.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
+
+        response = create_gets_response(data)
+        embed = create_embed(data)
+
+        await ctx.send(f'{response}', embed=embed)
+
     @bot.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.CommandNotFound):
@@ -97,30 +102,11 @@ def run_discord_bot():
         print(error)
 
     @bot.command()
-    async def gets(ctx, *, query):
-        await ctx.typing()
-
-        query, count, sort_col, sort_dir = prepare_query(query)
-        data = get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir, login_secure=login_secure)
-
-        response = create_gets_response(data)
-        embed = create_embed(data)
-
-        await ctx.send(f'{response}', embed=embed)
-
-    @gets.error
-    async def gets_error(ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
-                f"`Missing argument:\n\"{ctx.message.content}\" command requires to pass query as an argument`")
-        print(error)
-
-    @bot.command()
     async def get(ctx, *, query):
         await ctx.typing()
 
         query, count, sort_col, sort_dir = prepare_query(query)
-        data = get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir, login_secure=login_secure)
+        data = steam_user.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
 
         response = create_get_embeds(data)
         for embeds_list in response:
@@ -130,10 +116,11 @@ def run_discord_bot():
         await ctx.send(embed=embed)
 
     @get.error
-    async def get_error(ctx, error):
+    @gets.error
+    async def get_gets_errors(ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
-                f"`Missing argument:\n\"{ctx.message.content}\" command requires to pass query as an argument`")
+                f"`Missing argument111:\n\"{ctx.message.content}\" command requires to pass query as an argument`")
         print(error)
 
     bot.run(token)
