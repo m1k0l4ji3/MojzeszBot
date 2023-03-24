@@ -4,6 +4,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from command_func import *
 from steam_market import SteamMarket
+from buff_market import BuffMarket
+from client import Client
 
 
 def run_discord_bot():
@@ -11,7 +13,9 @@ def run_discord_bot():
     token = os.getenv('TOKEN')
     aliases = load_aliases()
 
-    steam_client = SteamMarket()
+    client = Client()
+    steam_market = SteamMarket(client.steam_client)
+    buff_market = BuffMarket(client.steam_client)
 
     intents = discord.Intents.default()
     intents.message_content = True
@@ -20,6 +24,11 @@ def run_discord_bot():
 
     @bot.event
     async def on_ready():
+        await client.login()
+        print("1")
+        await buff_market.login()
+        print("2")
+
         print(f"Logged in as {bot.user}\n")
 
     @bot.event
@@ -35,12 +44,12 @@ def run_discord_bot():
         await ctx.typing()
 
         query, count, sort_col, sort_dir = prepare_steam_query(query, aliases)
-        data = steam_client.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
+        data = await steam_market.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
 
-        response = create_gets_response(data)
-        embed = create_embed(data)
+        response = create_response_text(data)
+        embed, image = create_results_embed(data, ctx.invoked_with)
 
-        await ctx.send(f'{response}', embed=embed)
+        await ctx.send(f'{response}', embed=embed, file=image)
 
     @gets.error
     async def gets_error(ctx, error):
@@ -54,14 +63,14 @@ def run_discord_bot():
         await ctx.typing()
 
         query, count, sort_col, sort_dir = prepare_steam_query(query, aliases)
-        data = steam_client.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
+        data = await steam_market.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
 
-        response = create_get_embeds(data)
+        response = create_response_embeds(data)
         for embeds_list in response:
             await ctx.send(embeds=embeds_list)
 
-        embed = create_embed(data)
-        await ctx.send(embed=embed)
+        embed, image = create_results_embed(data, ctx.invoked_with)
+        await ctx.send(embed=embed, file=image)
 
     @get.error
     async def get_error(ctx, error):
@@ -70,9 +79,36 @@ def run_discord_bot():
                 f"`Missing argument:\n\"{ctx.message.content}\" command requires to pass query as an argument`")
         print(error)
 
+    # Buff commands
+    @bot.command()
+    async def buffs(ctx, *, query):
+        await ctx.typing()
+
+        search, page_size, sort_by = prepare_buff_query(query, aliases)
+        data = await buff_market.get_items(search, page_size=page_size, sort_by=sort_by)
+
+        response = create_response_text(data)
+        embed, image = create_results_embed(data, ctx.invoked_with)
+
+        await ctx.send(f'{response}', embed=embed, file=image)
+
+    @bot.command()
+    async def buff(ctx, *, query):
+        await ctx.typing()
+
+        search, page_size, sort_by = prepare_buff_query(query, aliases)
+        data = await buff_market.get_items(search, page_size=page_size, sort_by=sort_by)
+
+        response = create_response_embeds(data)
+        for embeds_list in response:
+            await ctx.send(embeds=embeds_list)
+
+        embed, image = create_results_embed(data, ctx.invoked_with)
+        await ctx.send(embed=embed, file=image)
+
     bot.run(token)
 
 
 if __name__ == "__main__":
-    print("Running version 1.3.0")
+    print("Running version 2.0.0")
     run_discord_bot()

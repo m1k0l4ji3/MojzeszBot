@@ -1,26 +1,12 @@
 import json
-import os
-
-from requests import get
-from steam.guard import SteamAuthenticator
 from urllib.parse import quote
-import steam.webauth as wa
-from dotenv import load_dotenv
 
 
 class SteamMarket:
-    def __init__(self):
-        load_dotenv()
-        self.username = os.getenv('STEAM_USERNAME')
-        self.password = os.getenv('STEAM_PASSWORD')
-        self.secret = json.loads(os.getenv('STEAM_SECRET'))
-        self.steam = wa.WebAuth(self.username)
-        self.cookie = self.get_cookie()
+    def __init__(self, client):
+        self.steam_client = client
 
-    def get_items(self, query, start=0, count=10, sort_col='', sort_dir='', app_id=730):
-
-        while not self.steam.logged_on:
-            self.get_cookie()
+    async def get_items(self, query, start=0, count=10, sort_col='', sort_dir='', app_id=730):
 
         params = {
             "query": query,
@@ -33,10 +19,11 @@ class SteamMarket:
             "norender": 1
         }
 
-        response = get("https://steamcommunity.com/market/search/render", params=params, cookies=self.cookie)
-        data = json.loads(response.text)
+        response = await self.steam_client.request("https://steamcommunity.com/market/search/render", params=params)
+        print(type(response))  # TODO: DELETE THIS LATER
+        data = json.loads(response)
 
-        query_url = f"https://steamcommunity.com/market/search?appid={app_id}&q={quote(query)}"
+        query_url = f"https://steamcommunity.com/market/search?appid={app_id}&q={quote(query)}#p1_{sort_col}_{sort_dir}"
         result = {
             "success": data['success'],
             "start": data['start'],
@@ -56,18 +43,3 @@ class SteamMarket:
                 "icon_url": f"https://steamcommunity-a.akamaihd.net/economy/image/{item['asset_description']['icon_url']}"
             })
         return result
-
-    def get_cookie(self):
-        sa = SteamAuthenticator(self.secret)
-        twofactor_code = sa.get_code()
-
-        print(f"Is steam user [{self.username}] already logged on: {self.steam.logged_on}")
-        if not self.steam.logged_on:
-            print(f"Login attempt for {self.username}")
-            try:
-                self.steam.cli_login(password=self.password, twofactor_code=twofactor_code)
-                print(f"Successfully logged in as: {self.username}\n")
-            except TypeError:
-                print("Can't login now, try later...")
-
-        return self.steam.session.cookies
