@@ -1,5 +1,8 @@
+import asyncio
 import json
 from urllib.parse import quote
+
+import bufflogin.exceptions
 from bufflogin import Buff
 
 
@@ -9,17 +12,21 @@ class BuffMarket:
         self.buff_client = Buff(self.steam_client)
 
     async def login(self):
-        if await self.buff_client.is_authorized():
-            return
-        try:
-            await self.buff_client.login_to_buff()
-            print("[Buff163] Login succeed")
-        except Exception as e:
-            print(e)
+        while True:
+            try:
+                if await self.buff_client.is_authorized():
+                    return
+                await self.buff_client.login_to_buff()
+                print("[Buff163] Login succeed")
+            except bufflogin.exceptions.BuffLoginError as e:
+                print(f"[ERROR]: {e} - Buff login")
+                await asyncio.sleep(10)
+            except json.decoder.JSONDecodeError as e:
+                print(f"[ERROR]: {e} - Buff login")
+                await asyncio.sleep(1)
 
     async def get_items(self, search, page=1, page_size='10', sort_by="", game='csgo'):
-        while not await self.buff_client.is_authorized():
-            await self.login()
+        await self.login()
 
         params = {
             "search": search,
@@ -31,8 +38,14 @@ class BuffMarket:
         if sort_by != "":
             params['sort_by'] = sort_by
 
-        response = await self.buff_client.request("https://buff.163.com/api/market/goods", params=params)
-        data = json.loads(response)
+        while True:
+            response = await self.buff_client.request("https://buff.163.com/api/market/goods", params=params)
+            try:
+                data = json.loads(response)
+                break
+            except json.decoder.JSONDecodeError as e:
+                print(f"[ERROR]: {e} - Sleeping for 1 second...")
+                await asyncio.sleep(1)
 
         query_url = f"https://buff.163.com/market/{game}#tab=selling&page_num={page}&search={quote(search)}"
         result = {

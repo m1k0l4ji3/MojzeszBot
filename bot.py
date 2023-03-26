@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from discord.ext import commands
@@ -24,19 +25,14 @@ def run_discord_bot():
 
     @bot.event
     async def on_ready():
-        await client.login()
         print("1")
-        await buff_market.login()
+        await steam_market.login()
+        await asyncio.sleep(5)
         print("2")
+        await buff_market.login()
 
+        print("-"*30)
         print(f"Logged in as {bot.user}\n")
-
-    @bot.event
-    async def on_command_error(ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            await ctx.typing()
-            await ctx.send(f"`Invalid Command:\n \"{ctx.message.content}\" command is not found`")
-        print(error)
 
     # Steam commands
     @bot.command()
@@ -105,6 +101,13 @@ def run_discord_bot():
 
         embed, image = create_results_embed(data, ctx.invoked_with)
         await ctx.send(embed=embed, file=image)
+
+    @bot.event
+    async def on_command_error(ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.typing()
+            await ctx.send(f"`Invalid Command:\n \"{ctx.message.content}\" command is not found`")
+        print(error)
 
     bot.run(token)
 
