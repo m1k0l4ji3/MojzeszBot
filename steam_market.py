@@ -37,7 +37,6 @@ class SteamMarket:
         }
         while True:
             response = await self.steam_client.request("https://steamcommunity.com/market/search/render", params=params)
-            print(response)
             try:
                 data = json.loads(response)
                 break

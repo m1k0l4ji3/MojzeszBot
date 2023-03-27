@@ -30,7 +30,6 @@ def run_discord_bot():
         await asyncio.sleep(5)
         print("2")
         await buff_market.login()
-
         print("-"*30)
         print(f"Logged in as {bot.user}\n")
 
@@ -113,5 +112,5 @@ def run_discord_bot():
 
 
 if __name__ == "__main__":
-    print("Running version 2.0.0")
+    print("Running version 2.0.1")
     run_discord_bot()

@@ -29,8 +29,9 @@ def prepare_buff_query(message_query, aliases):
     parameters_lower = [param.lower() for param in parameters]
     sort_by = search = ""
     page_size = 10
-
     for param in parameters_lower:
+        if param in ("price", "quantity, name"):
+            pass
         if param in ("asc", "desc"):
             sort_by = f"price.{param}"
         elif param.isdecimal():
@@ -41,7 +42,7 @@ def prepare_buff_query(message_query, aliases):
             search = param.strip()
             if search in aliases:
                 search = aliases[search]
-        return search, page_size, sort_by
+    return search, page_size, sort_by
 
 
 def create_response_text(data):
@@ -56,7 +57,6 @@ def create_response_text(data):
         response += "```"
         return response
     else:
-        print(data)  # TODO: Delete this line later
         return "`There were no items matching your search. Try again with different keywords.`"
 
 
