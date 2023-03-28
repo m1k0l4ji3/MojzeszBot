@@ -67,7 +67,7 @@ def create_results_embed(data, cmd_name):
         image = "steam_icon.png"
     file = discord.File(f"./images/{image}", filename=image)
 
-    embed = discord.Embed(title=f"Results for: \"{data['query']}\"", url=data['query_url'])
+    embed = discord.Embed(title=f"Results for: \"{data['query']}\"", url=data['query_url'], color=0x644A3B)
     embed.set_thumbnail(url=f"attachment://{image}")
     return embed, file
 

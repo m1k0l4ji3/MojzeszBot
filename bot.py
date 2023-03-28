@@ -3,34 +3,36 @@ import os
 
 from discord.ext import commands
 from dotenv import load_dotenv
-from command_func import *
-from steam_market import SteamMarket
+
 from buff_market import BuffMarket
-from client import Client
+from command_func import *
+from help_command import CustomHelpCommand
+from steam_market import SteamMarket
 
 
 def run_discord_bot():
     load_dotenv()
     token = os.getenv('TOKEN')
-    aliases = load_aliases()
+    aliases_dict = load_aliases()
 
-    client = Client()
-    steam_market = SteamMarket(client.steam_client)
-    buff_market = BuffMarket(client.steam_client)
+    steam_market = SteamMarket()
+    buff_market = BuffMarket(steam_market.steam_client)
 
     intents = discord.Intents.default()
     intents.message_content = True
 
-    bot = commands.Bot(command_prefix='-', intents=intents)
+    bot = commands.Bot(command_prefix='-', intents=intents, help_command=CustomHelpCommand())
 
     @bot.event
     async def on_ready():
-        print("1")
+        print("Steam login attempt:")
         await steam_market.login()
         await asyncio.sleep(5)
-        print("2")
+
+        print("Buff163 login attempt:")
         await buff_market.login()
-        print("-"*30)
+        print("-" * 30)
+
         print(f"Logged in as {bot.user}\n")
 
     # Steam commands
@@ -38,7 +40,7 @@ def run_discord_bot():
     async def gets(ctx, *, query):
         await ctx.typing()
 
-        query, count, sort_col, sort_dir = prepare_steam_query(query, aliases)
+        query, count, sort_col, sort_dir = prepare_steam_query(query, aliases_dict)
         data = await steam_market.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
 
         response = create_response_text(data)
@@ -46,18 +48,11 @@ def run_discord_bot():
 
         await ctx.send(f'{response}', embed=embed, file=image)
 
-    @gets.error
-    async def gets_error(ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
-                f"`Missing argument:\n\"{ctx.message.content}\" command requires to pass query as an argument`")
-        print(error)
-
     @bot.command()
     async def get(ctx, *, query):
         await ctx.typing()
 
-        query, count, sort_col, sort_dir = prepare_steam_query(query, aliases)
+        query, count, sort_col, sort_dir = prepare_steam_query(query, aliases_dict)
         data = await steam_market.get_items(query, count=count, sort_col=sort_col, sort_dir=sort_dir)
 
         response = create_response_embeds(data)
@@ -67,19 +62,12 @@ def run_discord_bot():
         embed, image = create_results_embed(data, ctx.invoked_with)
         await ctx.send(embed=embed, file=image)
 
-    @get.error
-    async def get_error(ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
-                f"`Missing argument:\n\"{ctx.message.content}\" command requires to pass query as an argument`")
-        print(error)
-
     # Buff commands
     @bot.command()
     async def buffs(ctx, *, query):
         await ctx.typing()
 
-        search, page_size, sort_by = prepare_buff_query(query, aliases)
+        search, page_size, sort_by = prepare_buff_query(query, aliases_dict)
         data = await buff_market.get_items(search, page_size=page_size, sort_by=sort_by)
 
         response = create_response_text(data)
@@ -91,7 +79,7 @@ def run_discord_bot():
     async def buff(ctx, *, query):
         await ctx.typing()
 
-        search, page_size, sort_by = prepare_buff_query(query, aliases)
+        search, page_size, sort_by = prepare_buff_query(query, aliases_dict)
         data = await buff_market.get_items(search, page_size=page_size, sort_by=sort_by)
 
         response = create_response_embeds(data)
@@ -101,16 +89,29 @@ def run_discord_bot():
         embed, image = create_results_embed(data, ctx.invoked_with)
         await ctx.send(embed=embed, file=image)
 
+    @bot.command()
+    async def aliases(ctx):
+        await ctx.typing()
+        embed = discord.Embed(title="Aliases", color=0x644A3B)
+        for alias in aliases_dict:
+            embed.add_field(name="", value=f"`{alias}` - {aliases_dict[alias]}")
+        await ctx.send(embed=embed)
+
     @bot.event
     async def on_command_error(ctx, error):
+        await ctx.typing()
         if isinstance(error, commands.CommandNotFound):
-            await ctx.typing()
-            await ctx.send(f"`Invalid Command:\n \"{ctx.message.content}\" command is not found`")
-        print(error)
+            await ctx.send(f"`Invalid Command:\n \"{ctx.invoked_with}\" command is not found`")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"`Missing argument:\n\"{ctx.invoked_with}\" command requires to pass query as an argument`")
+        else:
+            print(error)
+            await asyncio.sleep(2)
+            await ctx.send(f"`Unexpected error:\n\"{ctx.invoked_with}\" command caused an error`")
 
     bot.run(token)
 
 
 if __name__ == "__main__":
-    print("Running version 2.0.1")
+    print("Running version 2.1.1")
     run_discord_bot()

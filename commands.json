@@ -1,0 +1,38 @@
+{
+  "get": {
+    "description": "Use this command to search Steam market and receive data in embeds \n\nUse `\"/\"` to extend query with optional arguments:\n `[count]` - number of items displayed `(0-20)`\n `[sort_column]` - column to sort by `(name, quantity, price)`\n `[sort directory]` - order in which items should be displayed `(asc, desc)`",
+    "arguments_short": "[query]",
+    "arguments_desc": "Required: `[query]`",
+    "example": "-get 20/price/desc/antwerp holo"
+  },
+  "gets": {
+    "description": "Use this command to search Steam market and receive data as text \n\nUse `\"/\"` to extend query with optional arguments:\n `[count]` - number of items displayed `(0-20)`\n `[sort_column]` - column to sort by `(name, quantity, price)`\n `[sort directory]` - order in which items should be displayed `(asc, desc)`",
+    "arguments_short": "[query]",
+    "arguments_desc": "Required: [query]",
+    "example": "-gets antwerp capsule/3/quantity/asc"
+  },
+  "buff": {
+    "description": "Use this command to search Buff163 market and receive data in embeds \n\nUse `\"/\"` to extend query with optional arguments:\n `[count]` - number of items displayed `(0-20)`\n `[sort directory]` - order in which items should be displayed `(asc, desc)`\n\nBuff163 only allows to sort items by price",
+    "arguments_short": "[query]",
+    "arguments_desc": "Required: `[query]`",
+    "example": "-buff asc/dragon lore/5"
+  },
+  "buffs": {
+    "description": "Use this command to search Buff163 market and receive data as text \n\nUse `\"/\"` to extend query with optional arguments:\n `[count]` - number of items displayed `(0-20)`\n `[sort directory]` - order in which items should be displayed `(asc, desc)`\n\nBuff163 only allows to sort items by price",
+    "arguments_short": "[query]",
+    "arguments_desc": "Required: `[query]`",
+    "example": "-buffs awp/20/desc"
+  },
+  "aliases": {
+    "description": "Use this command to get list of available aliases",
+    "arguments_short": "",
+    "arguments_desc": "Command takes no arguments",
+    "example": ""
+  },
+  "help": {
+    "description": "This command requires no description :smile:",
+    "arguments_short": "[command]",
+    "arguments_desc": "Optional: `[command]`",
+    "example": "-help get"
+  }
+}

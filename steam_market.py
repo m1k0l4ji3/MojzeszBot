@@ -1,12 +1,22 @@
-import json
-from urllib.parse import quote
-from client_errors import *
 import asyncio
+import json
+import os
+from urllib.parse import quote
+
+from dotenv import load_dotenv
+from pysteamauth.auth import Steam
+
+from client_errors import *
 
 
 class SteamMarket:
-    def __init__(self, client):
-        self.steam_client = client
+    def __init__(self):
+        load_dotenv()
+        self.username = os.getenv('STEAM_USERNAME')
+        self.password = os.getenv('STEAM_PASSWORD')
+        self.secret = json.loads(os.getenv('STEAM_SECRET'))
+        self.steam_client = Steam(login=self.username, password=self.password,
+                                  shared_secret=self.secret['shared_secret'])
 
     async def login(self):
         while True:
