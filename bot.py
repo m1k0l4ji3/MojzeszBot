@@ -100,18 +100,24 @@ def run_discord_bot():
     @bot.event
     async def on_command_error(ctx, error):
         await ctx.typing()
+        command = ctx.invoked_with
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send(f"`Invalid Command:\n \"{ctx.invoked_with}\" command is not found`")
+            await ctx.send(embed=discord.Embed(title="Invalid Command:",
+                                               description=f"`{command}` command is not found.\n\nUse `help` to list all available commands.",
+                                               color=0xdb0f27))
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"`Missing argument:\n\"{ctx.invoked_with}\" command requires to pass query as an argument`")
+            await ctx.send(embed=discord.Embed(title="Missing Argument:",
+                                               description=f"`{command}` command requires to pass an argument.\n\nUse `help [command]` to to get more details about the command.",
+                                               color=0xdb0f27))
         else:
             print(error)
-            await asyncio.sleep(2)
-            await ctx.send(f"`Unexpected error:\n\"{ctx.invoked_with}\" command caused an error`")
+            await ctx.send(embed=discord.Embed(title="Unexpected error:",
+                                               description=f"`{command}` command caused unidentified error.\n\nTry again later.",
+                                               color=0xdb0f27))
 
     bot.run(token)
 
 
 if __name__ == "__main__":
-    print("Running version 2.1.1")
+    print("Running version 2.2.1")
     run_discord_bot()

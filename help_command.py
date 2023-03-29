@@ -33,6 +33,23 @@ class CustomHelpCommand(commands.HelpCommand):
             embed.add_field(name="Example:", value=example)
         await self.get_destination().send(embed=embed)
 
+    async def command_not_found(self, command):
+        ctx = self.get_destination()
+        await ctx.typing()
+        return discord.Embed(title=f"Command not found:",
+                             description=f"`{command}` command does not exist.\n\nUse `help` to list all available commands.",
+                             color=0xdb0f27)
+
+    async def subcommand_not_found(self, command, string):
+        ctx = self.get_destination()
+        await ctx.typing()
+        return discord.Embed(title=f"Subcommand not found:",
+                             description=f"`{command}` command has no subcommands.\n\nUse `help` to list all available commands.",
+                             color=0xdb0f27)
+
+    async def send_error_message(self, error_message):
+        await self.get_destination().send(embed=error_message)
+
 
 def get_command_info():
     with open("commands.json", "r") as f:
