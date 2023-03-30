@@ -18,10 +18,11 @@ def prepare_steam_query(message_query, aliases):
             if count > 20:
                 count = 20
         elif param != "":
-            query = param.strip()
-            if query in aliases:
-                query = aliases[query]
-    return query, count, sort_column, sort_directory
+            for word in param.split():
+                if word in aliases:
+                    word = aliases[word]
+                query += word + " "
+    return query[:-1], count, sort_column, sort_directory
 
 
 def prepare_buff_query(message_query, aliases):
@@ -39,10 +40,11 @@ def prepare_buff_query(message_query, aliases):
             if page_size > 20:
                 page_size = 20
         elif param != "":
-            search = param.strip()
-            if search in aliases:
-                search = aliases[search]
-    return search, page_size, sort_by
+            for word in param.split():
+                if word in aliases:
+                    word = aliases[word]
+                search += word + " "
+    return search[:-1], page_size, sort_by
 
 
 def create_response_text(data):

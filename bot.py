@@ -119,5 +119,5 @@ def run_discord_bot():
 
 
 if __name__ == "__main__":
-    print("Running version 2.2.1")
+    print("Running version 2.3.0")
     run_discord_bot()
