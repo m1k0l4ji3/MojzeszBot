@@ -11,12 +11,17 @@
   "sg": "stockholm gold",
   "ac": "antwerp capsule",
   "as": "antwerp sticker",
-  "agl": "antwerp glitter",
+  "agr": "antwerp glitter",
   "ah": "antwerp holo",
   "ag": "antwerp gold",
   "rc": "rio capsule",
   "rs": "rio sticker",
-  "rgl": "rio glitter",
+  "rgr": "rio glitter",
   "rh": "rio holo",
-  "rg": "rio gold"
+  "rg": "rio gold",
+  "pc": "paris capsule",
+  "ps": "paris sticker",
+  "pgr": "paris glitter",
+  "ph": "paris holo",
+  "pg": "paris gold"
 }
