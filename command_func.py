@@ -2,7 +2,7 @@ import discord
 import json
 
 
-def prepare_steam_query(message_query, aliases):
+def prepare_steam_query(message_query: str, aliases: dict):
     parameters = message_query.split("/")
     parameters_lower = [param.lower() for param in parameters]
     sort_column = sort_directory = query = ""
@@ -22,18 +22,20 @@ def prepare_steam_query(message_query, aliases):
                 if word in aliases:
                     word = aliases[word]
                 query += word + " "
+
     return query[:-1], count, sort_column, sort_directory
 
 
-def prepare_buff_query(message_query, aliases):
+def prepare_buff_query(message_query: str, aliases: dict):
     parameters = message_query.split("/")
     parameters_lower = [param.lower() for param in parameters]
     sort_by = search = ""
     page_size = 10
+
     for param in parameters_lower:
         if param in ("price", "quantity, name"):
             pass
-        if param in ("asc", "desc"):
+        elif param in ("asc", "desc"):
             sort_by = f"price.{param}"
         elif param.isdecimal():
             page_size = int(param)
@@ -44,10 +46,31 @@ def prepare_buff_query(message_query, aliases):
                 if word in aliases:
                     word = aliases[word]
                 search += word + " "
+
     return search[:-1], page_size, sort_by
 
 
-def create_response_text(data):
+def prepare_chart_query(message_query: str):
+    aliases = {"w": "week", "m": "month", "y": "year", "a": "all"}
+    chart_types = []
+    parameters = message_query.split("/")
+    name = parameters.pop(0)
+
+    if len(parameters) == 0:
+        chart_types.append("month")
+
+    parameters_lower = [param.lower() for param in parameters]
+
+    for param in parameters_lower:
+        if param in ("week", "month", "year", "all"):
+            chart_types.append(param)
+        elif param in ("w", "m", "y", "a"):
+            chart_types.append(aliases[param])
+
+    return name, chart_types
+
+
+def create_response_text(data: dict):
     if data['results']:
         lengths = [(len(item['hash_name']), len(item['sell_price_text'])) for item in data['results']]
         max_name_length = max(lengths, key=lambda elem: elem[0])[0]
@@ -62,7 +85,7 @@ def create_response_text(data):
         return "`There were no items matching your search. Try again with different keywords.`"
 
 
-def create_results_embed(data, cmd_name):
+def create_results_embed(data: dict, cmd_name: str):
     if cmd_name in ("buff", "buffs"):
         image = "buff_icon.png"
     else:
@@ -74,7 +97,7 @@ def create_results_embed(data, cmd_name):
     return embed, file
 
 
-def create_response_embeds(data):
+def create_response_embeds(data: dict):
     if data['results']:
         embeds_lists = []
         embeds_list = []

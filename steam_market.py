@@ -33,7 +33,7 @@ class SteamMarket:
                 await asyncio.sleep(1)
             # TODO: add exception for is_authorized() NoneType error
 
-    async def get_items(self, query, start=0, count=10, sort_col='', sort_dir='', app_id=730):
+    async def get_items(self, query: str, start=0, count=10, sort_col='', sort_dir='', app_id=730):
         await self.login()
 
         params = {

@@ -162,3 +162,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,windows,dotenv,venv
+/images/all.png
+/images/month.png
+/images/week.png
+/images/year.png

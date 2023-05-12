@@ -25,7 +25,7 @@ class BuffMarket:
                 print(f"[ERROR]: {e} - Buff login")
                 await asyncio.sleep(1)
 
-    async def get_items(self, search, page=1, page_size='10', sort_by="", game='csgo'):
+    async def get_items(self, search: str, page=1, page_size='10', sort_by="", game='csgo'):
         await self.login()
 
         params = {

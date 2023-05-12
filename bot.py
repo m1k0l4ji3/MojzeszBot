@@ -8,6 +8,7 @@ from buff_market import BuffMarket
 from command_func import *
 from help_command import CustomHelpCommand
 from steam_market import SteamMarket
+from chart_creator import ChartCreator
 
 
 def run_discord_bot():
@@ -17,6 +18,7 @@ def run_discord_bot():
 
     steam_market = SteamMarket()
     buff_market = BuffMarket(steam_market.steam_client)
+    creator = ChartCreator()
 
     intents = discord.Intents.default()
     intents.message_content = True
@@ -32,7 +34,6 @@ def run_discord_bot():
         print("Buff163 login attempt:")
         await buff_market.login()
         print("-" * 30)
-
         print(f"Logged in as {bot.user}\n")
 
     # Steam commands
@@ -62,6 +63,16 @@ def run_discord_bot():
         embed, image = create_results_embed(data, ctx.invoked_with)
         await ctx.send(embed=embed, file=image)
 
+    @bot.command()
+    async def chart(ctx, *, query):
+        await ctx.typing()
+
+        name, chart_types = prepare_chart_query(query)
+        creator.get_charts(name, chart_types)
+        for chart_type in chart_types:
+            file = discord.File(f"./images/{chart_type}.png", filename=f"{chart_type}.png")
+            await ctx.send(file=file)
+
     # Buff commands
     @bot.command()
     async def buffs(ctx, *, query):
@@ -89,6 +100,7 @@ def run_discord_bot():
         embed, image = create_results_embed(data, ctx.invoked_with)
         await ctx.send(embed=embed, file=image)
 
+    # general commands
     @bot.command()
     async def aliases(ctx):
         await ctx.typing()
@@ -119,5 +131,5 @@ def run_discord_bot():
 
 
 if __name__ == "__main__":
-    print("Running version 2.3.0")
+    print("Running version 2.4.0")
     run_discord_bot()

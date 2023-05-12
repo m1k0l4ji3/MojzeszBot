@@ -23,6 +23,12 @@
     "arguments_desc": "Required: `[query]`",
     "example": "-buffs awp/20/desc"
   },
+  "chart": {
+    "description": "Use this command to view charts of desired item",
+    "arguments_short": "[item_name]",
+    "arguments_desc": "Required: `[item_name]`",
+    "example": "-chart Antwerp 2022 Challengers Sticker Capsule/week/m/year/a"
+  },
   "aliases": {
     "description": "Use this command to get list of available aliases",
     "arguments_short": "",

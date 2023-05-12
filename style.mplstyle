@@ -1,0 +1,19 @@
+figure.facecolor: 101822
+
+axes.facecolor: 101822
+axes.titlecolor : 6a9596
+axes.prop_cycle: cycler('color', ['688f3e'])
+axes.edgecolor: 1b2939
+axes.linewidth: 2
+axes.axisbelow: True
+
+lines.linewidth: 2
+
+xtick.color: 6a9596
+xtick.major.size: 0.0
+
+ytick.major.size: 0.0
+ytick.color: 6a9596
+
+grid.color: 1b2939
+grid.linestyle: -
