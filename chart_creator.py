@@ -80,3 +80,5 @@ class ChartCreator:
         ax2.set_ylim([min(value_data) - diff, max(value_data) + diff])
 
         plt.savefig(f'images/{chart_type}.png')
+
+        plt.close('all')

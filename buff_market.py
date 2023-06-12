@@ -14,7 +14,7 @@ class BuffMarket:
     async def login(self):
         while True:
             try:
-                if await self.buff_client.is_authorized():
+                if await self.buff_client.is_alive_session():
                     return
                 await self.buff_client.login_to_buff()
                 print("[Buff163] Login succeed")

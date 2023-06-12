@@ -18,6 +18,7 @@ def prepare_steam_query(message_query: str, aliases: dict):
             if count > 20:
                 count = 20
         elif param != "":
+            query = ""
             for word in param.split():
                 if word in aliases:
                     word = aliases[word]
@@ -78,18 +79,15 @@ def create_response_text(data: dict):
 
         response = f"```"
         for item in data['results']:
-            response += f"{item['hash_name'].ljust(max_name_length + 1)}{item['sell_price_text'].ljust(max_price_length)} | {item['sell_listings']}\n"
+            response += f"{item['hash_name'].ljust(max_name_length + 1)}" \
+                        f"{item['sell_price_text'].ljust(max_price_length)} | {item['sell_listings']}\n"
         response += "```"
         return response
     else:
         return "`There were no items matching your search. Try again with different keywords.`"
 
 
-def create_results_embed(data: dict, cmd_name: str):
-    if cmd_name in ("buff", "buffs"):
-        image = "buff_icon.png"
-    else:
-        image = "steam_icon.png"
+def create_results_embed(data: dict, image: str):
     file = discord.File(f"./images/{image}", filename=image)
 
     embed = discord.Embed(title=f"Results for: \"{data['query']}\"", url=data['query_url'], color=0x644A3B)
